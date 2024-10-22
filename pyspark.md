@@ -108,10 +108,9 @@
   - Predicate pushdown
   - Project pushdown
   - Partition pruning
-  - Cost-based optimization
   - Custom optimizations
 
-### 7. Streaming
+### 7. Streaming (Just the basics, will be separate course for this)
 - **Structured Streaming**
   - Stream processing concepts
   - Input sources
@@ -121,20 +120,10 @@
   - State management
   - Checkpoint management
 
-- **Advanced Streaming**
-  - Stream-stream joins
-  - Stream-static joins
-  - Trigger options
-  - Rate limiting
-  - Error handling
-  - Recovery strategies
-  - Monitoring
-
-
 - **Monitoring & Debugging**
   - Spark UI
 
 - **Integration**
   - Kafka integration
   - Cloud services (GCP, AWS)
-  - External systems
+
