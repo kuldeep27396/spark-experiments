@@ -128,28 +128,20 @@
   - Cloud services (GCP, AWS)
 
 
-| Module | Content Creation Tasks | Week | Hours | Deliverables |
-|--------|----------------------|------|--------|--------------|
-| **1. Foundation & Setup** | Environment Setup + Architecture | 1-2 | 24 | - Setup guides with screenshots
-| | | | | - Architecture diagrams
-| | | | | - MCQs
-| **2. Core Concepts** | SparkContext, Session & RDD Fundamentals | 3-4 | 24 | - Theory documents
-| | | | | - practicals
-| | | | | - MCQs
-| **3. Data Processing** | RDD & DataFrame Operations | 5-6 | 24 | - Operation guides
-| | | | | - practicals
-| | | | | - MCQs
-| **4. Advanced Data Manipulation** | Transformations & Joins | 7-8 | 24 | - Advanced notebooks
-| | | | | - 3 complex scenarios
-| | | | | -  MCQs
-| **5. Data Management** | Data Sources & Writing | 9-10 | 24 | - Format guides
-| | | | | - practicals
-| | | | | - MCQs
-| **6. Performance** | Memory & Optimization | 11 | 12 | - Performance guides
-| | | | | - Optimization practicals
-| | | | | - MCQs
-| **7. Streaming Basics** | Streaming & Monitoring | 12 | 12 | - Basic streaming guide
-| | | | | - Monitoring setup
-| | | | | - MCQs
-| **Total** | | 12 weeks | 144 | Complete Course |
 
+| Module | Duration | Topics Covered | Deliverables |
+|--------|-----------|----------------|--------------|
+| **1. Foundation & Setup** | 2 weeks (24h) | - Environment Setup<br>- IDE Configuration<br>- Spark Architecture<br>- Cluster Management | - Setup Documentation<br>- Hands-on Labs<br>- MCQs |
+| **2. Core Concepts** | 2 weeks (24h) | - SparkContext<br>- SparkSession<br>- RDD Fundamentals<br>- Configuration Management | - Theory Materials<br>- Practicals<br>- MCQs |
+| **3. Data Processing** | 2 weeks (24h) | - RDD Operations<br>- DataFrame Operations<br>- Transformations<br>- Actions | - Operation Guides<br>- Practicals<br>- MCQs |
+| **4. Advanced Data Manipulation** | 2 weeks (24h) | - Advanced Transformations<br>- Window Functions<br>- UDFs<br>- Join Operations | - Advanced Notebooks<br>- Complex Scenarios<br>- MCQs |
+| **5. Data Management** | 2 weeks (24h) | - Data Sources<br>- File Formats<br>- Data Writing<br>- Optimization | - Format Guides<br>- Integration Labs<br>- MCQs |
+| **6. Performance** | 1 week (12h) | - Memory Management<br>- Cache Management<br>- Optimization Techniques | - Performance Guides<br>- Optimization Labs<br>- MCQs |
+| **7. Streaming Basics** | 1 week (12h) | - Structured Streaming<br>- Monitoring<br>- Integration | - Streaming Guide<br>- Monitoring Setup<br>- MCQs |
+
+
+
+### Rough Estimate
+
+6 modules * 24hrs = 144 hrs 
+144 hrs / 12 hrs per week ( 6hrs Kuldeep + 6 hrs Nisha) = 12 weeks = around 3 months
