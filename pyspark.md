@@ -127,3 +127,29 @@
   - Kafka integration
   - Cloud services (GCP, AWS)
 
+
+| Module | Content Creation Tasks | Week | Hours | Deliverables |
+|--------|----------------------|------|--------|--------------|
+| **1. Foundation & Setup** | Environment Setup + Architecture | 1-2 | 24 | - Setup guides with screenshots
+| | | | | - Architecture diagrams
+| | | | | - MCQs
+| **2. Core Concepts** | SparkContext, Session & RDD Fundamentals | 3-4 | 24 | - Theory documents
+| | | | | - practicals
+| | | | | - MCQs
+| **3. Data Processing** | RDD & DataFrame Operations | 5-6 | 24 | - Operation guides
+| | | | | - practicals
+| | | | | - MCQs
+| **4. Advanced Data Manipulation** | Transformations & Joins | 7-8 | 24 | - Advanced notebooks
+| | | | | - 3 complex scenarios
+| | | | | -  MCQs
+| **5. Data Management** | Data Sources & Writing | 9-10 | 24 | - Format guides
+| | | | | - practicals
+| | | | | - MCQs
+| **6. Performance** | Memory & Optimization | 11 | 12 | - Performance guides
+| | | | | - Optimization practicals
+| | | | | - MCQs
+| **7. Streaming Basics** | Streaming & Monitoring | 12 | 12 | - Basic streaming guide
+| | | | | - Monitoring setup
+| | | | | - MCQs
+| **Total** | | 12 weeks | 144 | Complete Course |
+
