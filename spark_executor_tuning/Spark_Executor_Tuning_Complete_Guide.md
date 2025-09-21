@@ -446,25 +446,449 @@ The Spark UI provides comprehensive monitoring capabilities:
 
 ---
 
+## Advanced Shuffle Optimization
+
+![Shuffle Optimization](./screenshots/014_executor_tuning.png)
+
+### Understanding Shuffle Performance
+Shuffle operations are often the biggest performance bottleneck in Spark applications. Proper shuffle tuning is crucial for optimal performance.
+
+### Key Shuffle Parameters
+
+```mermaid
+graph TD
+    A[Shuffle Configuration] --> B[Partition Settings]
+    A --> C[Memory Settings]
+    A --> D[Network Settings]
+    A --> E[Disk Settings]
+
+    B --> B1[spark.sql.shuffle.partitions]
+    B --> B2[spark.default.parallelism]
+
+    C --> C1[spark.shuffle.file.buffer]
+    C --> C2[spark.reducer.maxSizeInFlight]
+
+    D --> D1[spark.shuffle.io.maxRetries]
+    D --> D2[spark.shuffle.io.retryWait]
+
+    E --> E1[spark.shuffle.spill.numElementsForceSpillThreshold]
+    E --> E2[spark.shuffle.spill.compress]
+```
+
+### Shuffle Partition Calculation
+
+```bash
+# Optimal shuffle partitions formula
+Optimal Partitions = (Total Data Size / Target Partition Size)
+
+# For memory-constrained environments
+spark.sql.shuffle.partitions = 200  # Default
+# For large datasets
+spark.sql.shuffle.partitions = 1000 # For 100GB+ datasets
+
+# For high-core clusters
+spark.default.parallelism = (total_cores * 2)
+```
+
+### Shuffle Service Configuration
+
+```bash
+# Enable external shuffle service
+--conf spark.shuffle.service.enabled=true \
+--conf spark.shuffle.service.port=7337 \
+--conf spark.shuffle.io.maxRetries=3 \
+--conf spark.shuffle.io.retryWait=5s \
+--conf spark.shuffle.io.connectionTimeout=60s
+```
+
+### Spill Management Strategies
+
+```bash
+# Reduce spilling to disk
+--conf spark.shuffle.memoryFraction=0.2 \
+--conf spark.shuffle.spill.numElementsForceSpillThreshold=1000000 \
+--conf spark.shuffle.spill.compress=true \
+--conf spark.shuffle.compress=true
+```
+
+---
+
+## Advanced Memory Management
+
+![Advanced Memory Management](./screenshots/015_executor_tuning.png)
+
+### Off-Heap Memory Configuration
+
+Off-heap memory can help reduce GC pressure and improve performance for memory-intensive applications.
+
+```bash
+# Enable off-heap memory
+--conf spark.memory.offHeap.enabled=true \
+--conf spark.memory.offHeap.size=2g \
+--conf spark.executor.memoryOverhead=1g
+```
+
+### Native Memory Allocation
+
+```mermaid
+graph LR
+    A[Total Memory] --> B[On-Heap Memory]
+    A --> C[Off-Heap Memory]
+    A --> D[Overhead Memory]
+
+    B --> E[JVM Heap]
+    B --> F[Reserved Memory]
+
+    C --> G[Direct Memory]
+    C --> H[Native Libraries]
+
+    D --> I[YARN Overhead]
+    D --> J[System Reserved]
+```
+
+### Garbage Collection Tuning
+
+```bash
+# G1GC Configuration for large heaps
+--conf spark.executor.extraJavaOptions="
+-XX:+UseG1GC
+-XX:InitiatingHeapOccupancyPercent=35
+-XX:MaxGCPauseMillis=200
+-XX:G1HeapRegionSize=32m
+-XX:+UseStringDeduplication
+-XX:ParallelGCThreads=4"
+
+# Parallel GC for smaller heaps
+--conf spark.executor.extraJavaOptions="
+-XX:+UseParallelGC
+-XX:ParallelGCThreads=4
+-XX:+UseParallelOldGC"
+```
+
+### Memory Leak Detection
+
+```bash
+# Enable memory leak detection
+--conf spark.executor.extraJavaOptions="
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/tmp/heapdump.hprof
+-XX:ErrorFile=/tmp/jvm_error.log"
+
+# Monitor native memory
+--conf spark.executor.extraJavaOptions="
+-XX:NativeMemoryTracking=detail
+-XX:+PrintNMTStatistics"
+```
+
+---
+
+## Production Deployment Considerations
+
+![Production Deployment](./screenshots/016_executor_tuning.png)
+
+### Multi-tenant Environments
+
+```bash
+# Resource queue configuration
+--conf spark.yarn.queue=production \
+--conf spark.yarn.maxAppAttempts=1 \
+--conf spark.yarn.am.memoryOverhead=512m \
+--conf spark.yarn.executor.memoryOverhead=1g
+```
+
+### High Availability Configuration
+
+```bash
+# High availability settings
+--conf spark.deploy.recoveryMode=ZOOKEEPER \
+--conf spark.deploy.zookeeper.url=zk1:2181,zk2:2181,zk3:2181 \
+--conf spark.deploy.zookeeper.dir=/spark \
+--conf spark.blacklist.enabled=true \
+--conf spark.blacklist.timeout=1h
+```
+
+### Resource Quotas and Limits
+
+```bash
+# Resource management
+--conf spark.cores.max=100 \
+--conf spark.maxResultSize=1g \
+--conf spark.driver.maxResultSize=2g \
+--conf spark.task.maxFailures=4 \
+--conf spark.stage.maxConsecutiveAttempts=4
+```
+
+### Disaster Recovery Planning
+
+```bash
+# Checkpointing for recovery
+--conf spark.checkpoint.dir=hdfs://checkpoint-dir \
+--conf spark.checkpoint.interval=10m \
+--conf spark.cleaner.referenceTracking.cleanCheckpoints=true
+```
+
+---
+
+## Performance Benchmarking
+
+![Performance Benchmarking](./screenshots/017_executor_tuning.png)
+
+### Benchmark Methodology
+
+1. **Establish Baseline**: Measure current performance metrics
+2. **Identify Bottlenecks**: Use Spark UI and logs
+3. **Test Incremental Changes**: Change one parameter at a time
+4. **Measure Impact**: Compare before/after metrics
+5. **Validate Stability**: Run multiple iterations
+
+### Key Metrics to Track
+
+```mermaid
+graph TD
+    A[Performance Metrics] --> B[Execution Time]
+    A --> C[Resource Usage]
+    A --> D[Data Processing]
+    A --> E[System Health]
+
+    B --> B1[Job Duration]
+    B --> B2[Stage Time]
+    B --> B3[Task Duration]
+
+    C --> C1[CPU Utilization]
+    C --> C2[Memory Usage]
+    C --> C3[Network I/O]
+
+    D --> D1[Records Processed]
+    D --> D2[Data Volume]
+    D --> D3[Throughput]
+
+    E --> E1[GC Pauses]
+    E --> E2[Error Rates]
+    E --> E3[Executor Failures]
+```
+
+### Test Data Generation
+
+```bash
+# Generate test data
+spark-submit --class org.apache.spark.examples.SparkPi \
+  --master yarn \
+  --executor-memory 1g \
+  --num-executors 2 \
+  --jars $SPARK_HOME/examples/jars/spark-examples*.jar \
+  100
+
+# TPC-DS benchmark setup
+spark-sql --master yarn \
+  --executor-memory 4g \
+  --num-executors 10 \
+  --conf spark.sql.shuffle.partitions=200 \
+  --database tpcds \
+  -f query1.sql
+```
+
+### Performance Regression Testing
+
+```bash
+# Automated performance testing
+#!/bin/bash
+
+# Test configurations
+CONFIGS=(
+  "--executor-cores 2 --executor-memory 4g --num-executors 5"
+  "--executor-cores 4 --executor-memory 8g --num-executors 3"
+  "--executor-cores 5 --executor-memory 12g --num-executors 2"
+)
+
+for config in "${CONFIGS[@]}"; do
+  echo "Testing configuration: $config"
+  time spark-submit $config my-app.jar
+done
+```
+
+---
+
+## Cloud Platform Configurations
+
+![Cloud Platform Settings](./screenshots/018_executor_tuning.png)
+
+### AWS EMR Configuration
+
+```bash
+#!/bin/bash
+# EMR optimized configuration
+spark-submit \
+  --master yarn \
+  --deploy-mode cluster \
+  --executor-cores 4 \
+  --executor-memory 12g \
+  --num-executors 10 \
+  --driver-memory 4g \
+  --conf spark.dynamicAllocation.enabled=true \
+  --conf spark.dynamicAllocation.minExecutors=5 \
+  --conf spark.dynamicAllocation.maxExecutors=20 \
+  --conf spark.shuffle.service.enabled=true \
+  --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+  --conf spark.sql.hive.metastorePartitionPruning=true \
+  --conf spark.sql.files.maxPartitionBytes=134217728 \
+  --conf spark.sql.files.openCostInBytes=4194304 \
+  my-app.jar
+```
+
+### Databricks Configuration
+
+```bash
+#!/bin/bash
+# Databricks optimized configuration
+spark-submit \
+  --master databricks \
+  --executor-cores 4 \
+  --executor-memory 16g \
+  --num-executors 8 \
+  --driver-memory 8g \
+  --conf spark.databricks.clusterUsageTags.clusterAllPurposeId=your-cluster-id \
+  --conf spark.databricks.delta.preview.enabled=true \
+  --conf spark.databricks.io.cache.enabled=true \
+  --conf spark.sql.adaptive.enabled=true \
+  --conf spark.sql.adaptive.coalescePartitions.enabled=true \
+  my-app.jar
+```
+
+### Google Cloud Dataproc Configuration
+
+```bash
+#!/bin/bash
+# Dataproc optimized configuration
+spark-submit \
+  --master yarn \
+  --deploy-mode cluster \
+  --executor-cores 4 \
+  --executor-memory 8g \
+  --num-executors 8 \
+  --driver-memory 4g \
+  --conf spark.hadoop.fs.gs.project.id=your-project-id \
+  --conf spark.hadoop.fs.gs.system.bucket=your-bucket \
+  --conf spark.hadoop.google.cloud.auth.service.account.enable=true \
+  --conf spark.hadoop.google.cloud.auth.service.account.json.keyfile=/path/to/key.json \
+  --conf spark.dynamicAllocation.enabled=true \
+  --conf spark.shuffle.service.enabled=true \
+  my-app.jar
+```
+
+---
+
+## Configuration Calculator
+
+### Resource Allocation Calculator
+
+```python
+#!/usr/bin/env python3
+"""
+Spark Executor Configuration Calculator
+"""
+
+def calculate_executor_config(total_cores, total_memory_gb,
+                           workload_type='general'):
+    """
+    Calculate optimal executor configuration based on cluster resources
+    """
+
+    # Workload-specific multipliers
+    workload_multipliers = {
+        'general': {'cores_per_executor': 4, 'memory_per_core': 2},
+        'memory_intensive': {'cores_per_executor': 3, 'memory_per_core': 4},
+        'cpu_intensive': {'cores_per_executor': 5, 'memory_per_core': 1.5},
+        'streaming': {'cores_per_executor': 2, 'memory_per_core': 2}
+    }
+
+    multiplier = workload_multipliers.get(workload_type,
+                                        workload_multipliers['general'])
+
+    # Calculate optimal configuration
+    cores_per_executor = multiplier['cores_per_executor']
+    memory_per_executor = cores_per_executor * multiplier['memory_per_core']
+
+    # Calculate number of executors
+    max_executors_by_cores = int(total_cores / cores_per_executor)
+    max_executors_by_memory = int(total_memory_gb / memory_per_executor)
+
+    num_executors = min(max_executors_by_cores, max_executors_by_memory)
+
+    # Reserve resources for driver and system
+    num_executors = max(1, num_executors - 1)
+
+    return {
+        'num_executors': num_executors,
+        'executor_cores': cores_per_executor,
+        'executor_memory_gb': memory_per_executor,
+        'total_cores_used': num_executors * cores_per_executor,
+        'total_memory_used_gb': num_executors * memory_per_executor,
+        'efficiency_cores': (num_executors * cores_per_executor) / total_cores * 100,
+        'efficiency_memory': (num_executors * memory_per_executor) / total_memory_gb * 100
+    }
+
+# Example usage
+if __name__ == "__main__":
+    config = calculate_executor_config(
+        total_cores=64,
+        total_memory_gb=256,
+        workload_type='general'
+    )
+
+    print("Recommended Configuration:")
+    for key, value in config.items():
+        print(f"  {key}: {value}")
+```
+
+### Memory Overhead Calculator
+
+```python
+def calculate_memory_overhead(executor_memory_gb):
+    """
+    Calculate memory overhead based on executor memory
+    """
+    # YARN overhead calculation
+    overhead = max(0.384, executor_memory_gb * 0.1)
+    container_memory = executor_memory_gb + overhead
+
+    return {
+        'executor_memory_gb': executor_memory_gb,
+        'overhead_memory_gb': round(overhead, 2),
+        'container_memory_gb': round(container_memory, 2),
+        'overhead_percentage': round(overhead / container_memory * 100, 1)
+    }
+```
+
+---
+
 ## Additional Resources
 
 ### Reference Materials
 - [Spark Official Documentation](https://spark.apache.org/docs/latest/)
 - [YARN Architecture Guide](https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/YARN.html)
 - [Spark Tuning Guide](https://spark.apache.org/docs/latest/tuning.html)
+- [Spark Configuration Guide](https://spark.apache.org/docs/latest/configuration.html)
 
 ### Tools and Utilities
 - Spark UI for monitoring
 - YARN ResourceManager UI
 - Cluster resource calculators
 - Performance benchmarking tools
+- [Spark-Submit Calculator](https://spark-calculator.herokuapp.com/)
 
 ### Community Resources
 - Spark mailing lists
 - Stack Overflow
 - Apache Spark JIRA
 - Performance tuning blogs and articles
+- [Spark Performance Blog](https://databricks.com/blog/category/engineering/apache-spark)
+
+### Books and Courses
+- "High Performance Spark" by Holden Karau and Andy Konwinski
+- "Spark: The Definitive Guide" by Bill Chambers and Matei Zaharia
+- Databricks Academy courses
+- Cloudera Spark training
 
 ---
 
-**Note**: This guide provides comprehensive coverage of Apache Spark executor tuning concepts. Always test configurations in your specific environment and adjust based on your workload characteristics and cluster resources.
+**Note**: This guide provides comprehensive coverage of Apache Spark executor tuning concepts. Always test configurations in your specific environment and adjust based on your workload characteristics and cluster resources. Use the configuration calculator as a starting point and fine-tune based on actual performance metrics.
